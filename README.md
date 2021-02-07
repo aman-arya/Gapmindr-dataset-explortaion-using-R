@@ -1,6 +1,6 @@
 # Gapmindr-dataset-explortaion-using-R
 
-# Goal: Using R explore the following data set
+# Goal: Using R explore the following dataset
 
 **children_per_woman_total_fertility** : It includes the data of average children per woman for 194 different countries  per year from the year 1800 to 2100.
 
