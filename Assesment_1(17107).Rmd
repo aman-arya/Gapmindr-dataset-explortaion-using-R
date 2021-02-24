@@ -1,0 +1,841 @@
+---
+title: "Assessment 1 - Hricha Acharya (17107)"
+author: "Group Name : Shanon"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+The goal of this assessment is to explore R programming using Gapminder dataset.Following are the data sets and the information they include:
+
+**children_per_woman_total_fertility** : It includes the data of average children per woman for 194 different countries  per year from the year 1800 to 2100.
+
+**child_mortality_0_5_year_olds_dying_per_1000_born** : It includes the data of child mortality(children under 5 year's age dying per 1000) for 183 different countries  per year from the year 1800 to 2100.
+
+**income_per_person_gdppercapita_ppp_inflation_adjusted** : It includes the data of GDP per capita for 192 different countries  per year from the year 1800 to 2040.
+
+**life_expectancy_years** : It includes the data of Life expectancy for 186 different countries  per year from the year 1800 to 2100.
+
+
+ 
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+## <span style="color:grey"> Loading data  </span>: 
+
+```{r}
+library(Hmisc)
+setwd("/Users/hrichaacharya/Desktop/R /dataset")
+getwd()
+
+Children_per_woman <- read.csv("children_per_woman_total_fertility.csv", header = T, check.names = F) 
+Life_expectancy <- read.csv("life_expectancy_years.csv", header = T, check.names = F)
+Child_mortality <- read.csv("child_mortality_0_5_year_olds_dying_per_1000_born.csv", header = T, check.names = F)
+Population_total <- read.csv("population_total.csv", header = T, check.names = F)
+Income_per_person <- read.csv("income_per_person_gdppercapita_ppp_inflation_adjusted.csv", header = T, check.names = F)
+```
+
+
+# <span style="color:green"> Part 1  </span> 
+
+In Part 1 we consider ten countries each for three different sets of Countries (Developed, Developing and Under Developed).For each set of countries we take the mean of sample values for each year.We have considered mean of 10 countries because it will help us make a more accurate estimate of what trend a country from a set is likely to follow. Later we plot these means for Developed, Developing and Under Developed countries and compare their trends. We also make certain Hypothesis regarding the data we observe and try to prove or reject those Hypothesis with help of various Hypothesis testing methods we covered in this course so far. Countries that are considered are :
+
+**Developed Countries** : Norway , Ireland , Switzerland , Hong Kong , Iceland , Germany , Sweden , Australia, Netherlands , Denmark
+
+**Developing Countries** : Algeria , Lebanon , Fiji , Moldova , Maldives , Tunisia , Saint Vincent and the  Grenadines , Suriname , Mongolia , Botswana
+
+**Underdeveloped Countries** : Eritrea , Mozambique , Burkina Faso , Sierra Leone , Mali , Burundi , South Sudan , Chad , Central African Republic , Niger
+
+Above set of countries have been selected based on their Human Development Index rankings published in year 2020 by United Nations Development Program (http://www.hdr.undp.org/). 
+
+## Dataset : "Children_per_woman"
+
+### <span style="color:grey"> Subsetting dataframe into different sets of countries as described above </span>
+
+```{r}
+head(Children_per_woman)
+```
+Here when we look at our data, we can clearly see that we have one row for each country which represents sample data values for years 1800 to 2100 under the columns named by the respective year. We will now subset this dataset in the way we require i.e. we subset it into three smaller dataframes each of which will include the set of ten countries as selected above.
+
+```{r}
+# Dataframe for Developed Countries:
+
+Developed_Children_per_woman <- Children_per_woman[Children_per_woman$country %in% c("Norway" , "Ireland" , "Switzerland" , "Finland" , "Iceland" , "Germany" , "Sweden" , "Australia", "Netherlands" , "Denmark"),]
+Developed_Children_per_woman
+
+# Dataframe for Developing Countries:
+
+Developing_Children_per_woman <- Children_per_woman[Children_per_woman$country %in% c("Algeria" , "Lebanon" , "Fiji" , "Moldova" , "Maldives" , "Tunisia" , "St. Vincent and the Grenadines" , "Suriname" , "Mongolia" , "Botswana"),]
+Developing_Children_per_woman
+
+# Dataframe for Underdeveloped Countries:
+
+Underdeveloped_Children_per_woman <- Children_per_woman[Children_per_woman$country %in% c("Eritrea" , "Mozambique" , "Burkina Faso" , "Sierra Leone" , "Mali" , "Burundi" , "South Sudan" , "Chad" , "Central African Republic" , "Niger"),]
+Underdeveloped_Children_per_woman
+
+```
+### <span style="color:grey"> Taking mean per column of subsets </span>
+
+Now that we have created three subsets for sets of countries (Developed, Developing and Under Developed) we require for our analysis, we will take mean for values of each year for all the ten countries in the dataset.
+
+```{r}
+# Taking mean of values for each set of countries and save it as a list:
+
+Developed_Children_per_woman_Mean <-  apply(Developed_Children_per_woman[,2:302],2, mean)
+Developing_Children_per_woman_Mean <-  apply(Developing_Children_per_woman[,2:302],2, mean)
+Underdeveloped_Children_per_woman_Mean <-  apply(Underdeveloped_Children_per_woman[,2:302],2, mean)
+```
+
+### <span style="color:grey"> Plotting Graphs and making observations </span>
+
+To compare the trend of data values for Children per woman in developed, developing and under developed countries from the year 1800 to 2100 we will plot them on one graph and make certain hypothesis based on the observations we derive from that graph.
+
+```{r}
+# plotting mean data vectors for each type of country:
+plot(c(1800:2100),Developed_Children_per_woman_Mean,col="red",pch=15,ylim = c(0,10),
+     xlab="Years",ylab="Children per Woman")
+points(c(1800:2100),Developing_Children_per_woman_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Children_per_woman_Mean,col="green")
+
+# adding legends to graph:
+legend(x = "topleft", 
+       legend = c("Children per woman in Developed countries ","Children per woman in Developing countries","Children per woman in Under Developed countries"),
+       fill = c("red","blue","green"))
+
+# Boxplots:
+boxplot(Developed_Children_per_woman_Mean,Developing_Children_per_woman_Mean,Underdeveloped_Children_per_woman_Mean,
+        ylab = "Childern per woman in years",
+        names=c("Developed ","Developing ","Under Developed "))
+```
+
+In the first graph we observe that there is certain deviation in the trend that each of the set of countries follow. In the years 1800 to 1900 the trend for Children per women stay nearly the same but then it starts to drop. We can add vertical lines to our graph to check roughly where this drop occurs in different sets of countries.  
+
+```{r}
+# plotting data lits:
+plot(c(1800:2100),Developed_Children_per_woman_Mean,col="red",pch=15,ylim = c(0,10),xlab="Years",ylab="Children per Woman")
+points(c(1800:2100),Developing_Children_per_woman_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Children_per_woman_Mean,col="green")
+
+# Adding vertical lines which mark the beginning of deviation from general trend in years 1800s :
+
+abline(v=1985,col="green")
+abline(v=1960,col="blue")
+abline(v=1900,col="red")
+```
+
+These are the following observations:
+
+  * Values for Under Developed countries remain roughly same from 1800 to 1980 but we see that it starts to drop in 1980s.
+  * Values for Developing countries remain roughly same from 1800 to 1960 but we see that it starts to drop in 1960s.
+  * Values for Developed countries remain roughly same from 1800 to 1900 but we see that it starts to drop in 1900s.
+  
+Another interesting observation that can be drawn from the **boxplot** is that the median of values Children per woman for Developed countries is lower than that of Developing countries and mean of values Children per woman for Developing countries is lower than that of Under Developed countries. To check this we can perform various Hypothesis tests:
+
+  1. We check whether the mean of each type of countries have a normal distribution of not using **Shapiro-Wilk Normality Test**. This is necessary since it will determine which kind of test (parametric or non parametric) can be used to compare means.
+  2. Since we want to compare the mean of three populations, we can use **ANOVA** only if in earlier part we get that our data is normally distributed. If not then we will use pairwise **Wilcoxon test** to compare the mean. 
+  
+### <span style="color:grey"> Checking Hypothesis </span>
+
+First we will perform **Shapiro-Wilk Normality Test** to check whether the mean values for each set of countries has normal distribution. 
+
+  * Null Hypothesis, $H_0 :=$ The population is normally distributed
+  * Alternate Hypothesis, $H_a :=$ The population is **NOT** normally distributed
+
+```{r}
+shapiro.test(Developed_Children_per_woman_Mean)
+shapiro.test(Developing_Children_per_woman_Mean)
+shapiro.test(Underdeveloped_Children_per_woman_Mean)
+```
+
+For each type of countries we have the p-value less than 0.05. Hence, we reject our Null Hypothesis (that the data vectors are normally distributed) and conclude that the set of mean values for each type of country is not normally distributed. Thus we cannot use **t test** or **ANOVA** to compare means of our datasets. 
+
+Now we will need a non parametric test to compare the means of our datasets pairwise. We will use **Wilcoxon test** to compare the mean. Note that we take our data vectors to be paired because the values have been taken under similar conditions from the years 1800 to 2100.
+
+1. Wilcoxon test between Developed and Developing Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between mean value of Children per women in Developed countries and of Developing countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between mean value of Children per women in Developed countries and of Developing countries is less than zero (i.e.mean value of Children per women in Developed countries is less than that of Developing countries. )
+
+```{r}
+
+wilcox.test(Developed_Children_per_woman_Mean,Developing_Children_per_woman_Mean, paired=TRUE,alternative = "less")
+
+```
+Since we get the p-value is less than 0.05 hence we reject our Null hypothesis and get that **mean value of Children per women in Developed countries is less than that of Developing countries.**
+
+2. Wilcoxon test between Developing and Under Developed Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between mean value of Children per women in Developing countries and of Under Developed countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between mean value of Children per women in Developing countries and of Under Developed countries is less than zero (i.e.mean value of Children per women in Developing countries is less than that of Under Developed countries. )
+
+```{r}
+wilcox.test(Developing_Children_per_woman_Mean,Underdeveloped_Children_per_woman_Mean, paired=TRUE,alternative = "less")
+
+```
+
+Since we get the p-value is less than 0.05 hence we reject our Null hypothesis and get that **mean value of Children per women in Developing countries is less than that of Under Developed countries.**
+
+Hence we conclude that the mean of values for Children per woman in Developed countries is lower than that in Developing countries and mean of values for Children per woman in Developing countries is lower than that in Under Developed countries.
+
+
+## Dataset : "Child_mortality"
+
+### <span style="color:grey"> Subsetting dataframe into different sets of countries as described above </span>
+
+```{r}
+head(Child_mortality)
+```
+Here when we look at our data, we can clearly see that we have one row for each country which represents sample data values for years 1800 to 2100 under the columns named by the respective year. We will now subset this dataset in the way we require i.e. we subset it into three smaller dataframes each of which will include the set of ten countries as selected intially.
+
+```{r}
+# Dataframe for Developed Countries:
+
+Developed_Child_mortality <- Child_mortality[Child_mortality$country %in% c("Norway" , "Ireland" , "Switzerland" , "Finland" , "Iceland" , "Germany" , "Sweden" , "Australia", "Netherlands" , "Denmark"),]
+Developed_Child_mortality
+
+# Dataframe for Developing Countries:
+
+Developing_Child_mortality <- Child_mortality[Child_mortality$country %in% c("Algeria" , "Lebanon" , "Fiji" , "Moldova" , "Maldives" , "Tunisia" , "St. Vincent and the Grenadines" , "Suriname" , "Mongolia" , "Botswana"),]
+Developing_Child_mortality
+
+# Dataframe for Underdeveloped Countries:
+
+Underdeveloped_Child_mortality <- Child_mortality[Child_mortality$country %in% c("Eritrea" , "Mozambique" , "Burkina Faso" , "Sierra Leone" , "Mali" , "Burundi" , "South Sudan" , "Chad" , "Central African Republic" , "Niger"),]
+Underdeveloped_Child_mortality
+
+```
+
+### <span style="color:grey"> Taking mean per column of subsets </span>
+
+Now that we have created three subsets for sets of countries (Developed, Developing and Under Developed) we require for our analysis, we will take mean for values of each year for all the ten countries in the dataset.
+
+```{r}
+# Taking mean of values for each set of countries and save it as a list:
+
+Developed_Child_mortality_Mean <-  apply(Developed_Child_mortality[,2:302],2, mean)
+Developing_Child_mortality_Mean <-  apply(Developing_Child_mortality[,2:302],2, mean)
+Underdeveloped_Child_mortality_Mean <-  apply(Underdeveloped_Child_mortality[,2:302],2, mean)
+```
+
+### <span style="color:grey"> Plotting Graphs and making observations </span>
+
+To compare the trend of data values for Children mortality in developed, developing and under developed countries from the year 1800 to 2100 we will plot them on one graph and make certain hypothesis based on the observations we derive from that graph.
+
+```{r}
+# plotting mean data vectors for each type of country:
+plot(c(1800:2100),Developed_Child_mortality_Mean,col="red",pch=15,ylim = c(0,700),
+     xlab=" Years ",ylab="Number of Children (0-5 years) dying per 1000 born")
+points(c(1800:2100),Developing_Child_mortality_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Child_mortality_Mean,col="green")
+
+# adding legends to graph:
+legend(x = "topleft", 
+       legend = c("Child mortality in Developed countries ","Child mortality in Developing countries","Child mortality in Under Developed countries"),
+       fill = c("red","blue","green"))
+
+# Boxplots:
+boxplot(Developed_Child_mortality_Mean,Developing_Child_mortality_Mean,Underdeveloped_Child_mortality_Mean,
+        ylab = "Number of Children (0-5 years) dying per 1000 born",
+        names=c("Developed ","Developing ","Under Developed "))
+```
+In the first graph we observe that there is certain deviation in the trend that each of the set of countries follow. In early 1800s Number of children dying per 1000 born is above 300 in case of all the three sets of countries, but we observe that it reduces significantly in later years. We can add vertical lines to our graph to check roughly where this drop occurs in different sets of countries.
+
+```{r}
+# plotting data lits:
+plot(c(1800:2100),Developed_Child_mortality_Mean,col="red",pch=15,ylim = c(0,550),
+     xlab=" Years ",ylab="Number of Children (0-5 years) dying per 1000 born")
+points(c(1800:2100),Developing_Child_mortality_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Child_mortality_Mean,col="green")
+
+# Adding vertical lines which mark the beginning of deviation from general trend in early 1800s :
+
+abline(v=1945,col="green")
+abline(v=1925,col="blue")
+abline(v=1850,col="red")
+```
+These are the following observations:
+
+  * Values for Under Developed countries remain roughly same from 1800 to 1940 but we see that it starts to drop in 1945s.
+  * Values for Developing countries remain roughly same from 1800 to 1920 but we see that it starts to drop in 1925.
+  * Values for Developed countries remain roughly same from 1800 to 1850 but we see that it starts to drop in 1850s.
+  
+Another interesting observation that can be drawn from the **boxplot** is that the median of Number of children dying per 1000 born for Developed countries is lower than that of Developing countries and median of Number of children dying per 1000 born in Developing countries is lower than that of Under Developed countries. To check this we can perform various Hypothesis tests:
+
+  1. We check whether the values of each type of countries have a normal distribution of not using **Shapiro-Wilk Normality Test**. This is necessary since it will determine which kind of test (parametric or non parametric) can be used to compare our data.
+  2. Since we want to compare three populations, we can use **ANOVA** only if in earlier part we get that our data is normally distributed. If not then we will use pairwise **Wilcoxon test** to compare their median. 
+
+### <span style="color:grey"> Checking Hypothesis </span>
+
+First we will perform **Shapiro-Wilk Normality Test** to check whether values for each set of countries has normal distribution. 
+
+  * Null Hypothesis, $H_0 :=$ The population is normally distributed
+  * Alternate Hypothesis, $H_a :=$ The population is **NOT** normally distributed
+  
+```{r}
+shapiro.test(Developed_Child_mortality_Mean)
+shapiro.test(Developing_Child_mortality_Mean)
+shapiro.test(Underdeveloped_Child_mortality_Mean)
+```
+  
+For each type of countries we have the p-value less than 0.05. Hence, we reject our Null Hypothesis (that the data vectors are normally distributed) and conclude that the set of values for each type of country is not normally distributed. Thus we cannot use **t test** or **ANOVA** to compare our datasets.
+
+Now we will need a non parametric test to compare the means of our datasets pairwise. We will use **Wilcoxon test** to compare the mean. Note that we take our data vectors to be paired because the values have been taken under similar conditions from the years 1800 to 2100.
+
+1. Wilcoxon test between Developed and Developing Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between median value of Child mortality in Developed countries and of Developing countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between median value of Child mortality in Developed countries and of Developing countries is less than zero (i.e.median of Child mortality in Developed countries is less than that of Developing countries. )
+
+```{r}
+wilcox.test(Developed_Child_mortality_Mean,Developing_Child_mortality_Mean, paired=TRUE,alternative = "less")
+```
+
+Since we get the p-value is less than 0.05 hence we reject our Null hypothesis and get that **mediean of Child mortality in Developed countries is less than that of Developing countries.**
+
+2. Wilcoxon test between Developing and Under Developed Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between median value of Child mortality in  of Developing countries and Under Developed countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between median value of Child mortality in Developing countries and Under Developed is less than zero (i.e.median of Child mortality in Developing countries is less than that of Under Developed countries. )
+
+```{r}
+wilcox.test(Developing_Child_mortality_Mean,Underdeveloped_Child_mortality_Mean, paired=TRUE,alternative = "less")
+```
+
+Since we get the p-value is less than 0.05 hence we reject our Null hypothesis and get that **median of Child mortality in Developed countries is less than that of Developing countries.**
+
+Hence we can conclude that the median of Number of children dying per 1000 born for Developed countries is lower than that of Developing countries and median of Number of children dying per 1000 born in Developing countries is lower than that of Under Developed countries. 
+
+
+## Dataset : "Income_per_person"
+
+### <span style="color:grey"> Subsetting dataframe into different sets of countries as described above </span>
+```{r}
+head(Income_per_person)
+```
+Here when we look at our data, we can clearly see that we have one row for each country which represents sample data values for years 1800 to 2100 under the columns named by the respective year. We will now subset this dataset in the way we require i.e. we subset it into three smaller dataframes each of which will include the set of ten countries as selected intially.
+
+```{r}
+# Dataframe for Developed Countries:
+
+Developed_Income_per_person <- Income_per_person[Income_per_person$country %in% c("Norway" , "Ireland" , "Switzerland" , "Finland" , "Iceland" , "Germany" , "Sweden" , "Australia", "Netherlands" , "Denmark"),]
+Developed_Income_per_person
+
+# Dataframe for Developing Countries:
+
+Developing_Income_per_person <- Income_per_person[Income_per_person$country %in% c("Algeria" , "Lebanon" , "Fiji" , "Moldova" , "Maldives" , "Tunisia" , "St. Vincent and the Grenadines" , "Suriname" , "Mongolia" , "Botswana"),]
+Developing_Income_per_person
+
+# Dataframe for Underdeveloped Countries:
+
+Underdeveloped_Income_per_person <- Income_per_person[Income_per_person$country %in% c("Eritrea" , "Mozambique" , "Burkina Faso" , "Sierra Leone" , "Mali" , "Burundi" , "South Sudan" , "Chad" , "Central African Republic" , "Niger"),]
+Underdeveloped_Income_per_person
+
+```
+
+
+### <span style="color:grey"> Taking mean per column of subsets </span>
+
+Now that we have created three subsets for sets of countries (Developed, Developing and Under Developed) we require for our analysis, we will take mean for values of each year for all the ten countries in the dataset.
+
+```{r}
+# Taking mean of values for each set of countries and save it as a list:
+
+Developed_Income_per_person_Mean <-  apply(Developed_Income_per_person[,2:242],2, mean)
+Developing_Income_per_person_Mean <-  apply(Developing_Income_per_person[,2:242],2, mean)
+Underdeveloped_Income_per_person_Mean <-  apply(Underdeveloped_Income_per_person[,2:242],2, mean)
+```
+
+### <span style="color:grey"> Plotting Graphs and making observations </span>
+
+To compare the trend of data values for Income per Person in developed, developing and under developed countries from the year 1800 to 2100 we will plot them on one graph and make certain hypothesis based on the observations we derive from that graph.
+
+```{r}
+# plotting mean data vectors for each type of country:
+plot(c(1800:2040),Developed_Income_per_person_Mean,col="red",pch=15,
+     xlab=" Years ",ylab="GDP per capita")
+points(c(1800:2040),Developing_Income_per_person_Mean,col="blue")
+points(c(1800:2040),Underdeveloped_Income_per_person_Mean,col="green")
+
+# adding legends to graph:
+legend(x = "topleft", 
+       legend = c("Income per person in Developed countries ","Income per person in Developing countries","Income per person in Under Developed countries"),
+       fill = c("red","blue","green"))
+
+# Boxplots:
+boxplot(Developed_Income_per_person_Mean,Developing_Income_per_person_Mean,Underdeveloped_Income_per_person_Mean,
+        ylab = "GDP per capita",
+        names=c("Developed ","Developing ","Under Developed "),outline=F)
+```
+An interesting observation that can be drawn from the **boxplot** is that the median of GDP per capita for Developed countries is greater than that of Developing countries and median of GDP per capita for Developing countries is greater than that of Under Developed countries. To check this we can perform various Hypothesis tests:
+
+  1. We check whether the values of each type of countries have a normal distribution of not using **Shapiro-Wilk Normality Test**. This is necessary since it will determine which kind of test (parametric or non parametric) can be used to compare our data.
+  2. Since we want to compare three populations, we can use **ANOVA** only if in earlier part we get that our data is normally distributed. If not then we will use pairwise **Wilcoxon test** to compare their median.
+  
+### <span style="color:grey"> Checking Hypothesis </span>
+
+First we will perform **Shapiro-Wilk Normality Test** to check whether values for each set of countries has normal distribution. 
+
+  * Null Hypothesis, $H_0 :=$ The population is normally distributed
+  * Alternate Hypothesis, $H_a :=$ The population is **NOT** normally distributed
+  
+```{r}
+shapiro.test(Developed_Income_per_person_Mean)
+shapiro.test(Developing_Income_per_person_Mean)
+shapiro.test(Underdeveloped_Income_per_person_Mean)
+```
+
+For each type of countries we have the p-value less than 0.05. Hence, we reject our Null Hypothesis (that the data vectors are normally distributed) and conclude that the set of values for each type of country is not normally distributed. Thus we cannot use **t test** or **ANOVA** to compare our datasets.
+
+Now we will need a non parametric test to compare the means of our datasets pairwise. We will use **Wilcoxon test** to compare the mean. Note that we take our data vectors to be paired because the values have been taken under similar conditions from the years 1800 to 2100.
+
+1. Wilcoxon test between Developed and Developing Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between median value of GDP per capita in Developed countries and of Developing countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between median value of GDP per capita in Developed countries and of Developing countries is less than zero (i.e.median of GDP per capita in Developed countries is less than that of Developing countries. )
+
+```{r}
+wilcox.test(Developed_Income_per_person_Mean,Developing_Income_per_person_Mean, paired=TRUE,alternative = "less")
+```
+
+Since we get the p-value is greater than 0.05 hence we cannot reject our Null hypothesis and get that **median of GDP per capita in Developed countries is greater than that of Developing countries.**
+
+2. Wilcoxon test between Developing and Under Developed Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between median value of GDP per capita in  of Developing countries and Under Developed countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between median value of GDP per capita in Developing countries and Under Developed is less than zero (i.e.median of GDP per capita in Developing countries is less than that of Under Developed countries. )
+
+```{r}
+wilcox.test(Developing_Income_per_person_Mean,Underdeveloped_Income_per_person_Mean, paired=TRUE,alternative = "less")
+```
+
+Since we get the p-value is greater than 0.05 hence we cannot reject our Null hypothesis and get that **median of GDP per capita in Developed countries is greater than that of Developing countries.**
+
+Hence we can conclude that the median of GDP per capita for Developed countries is greater than that of Developing countries and median of GDP per capita for Developing countries is greater than that of Under Developed countries. 
+
+
+## Dataset : "Life_expectancy"
+
+### <span style="color:grey"> Subsetting dataframe into different sets of countries as described above </span>
+```{r}
+head(Life_expectancy)
+```
+Here when we look at our data, we can clearly see that we have one row for each country which represents sample data values for years 1800 to 2100 under the columns named by the respective year. We will now subset this dataset in the way we require i.e. we subset it into three smaller dataframes each of which will include the set of ten countries as selected intially.
+
+```{r}
+# Dataframe for Developed Countries:
+
+Developed_Life_expectancy <- Life_expectancy[Life_expectancy$country %in% c("Norway" , "Ireland" , "Switzerland" , "Finland" , "Iceland" , "Germany" , "Sweden" , "Australia", "Netherlands" , "Denmark"),]
+Developed_Life_expectancy
+
+# Dataframe for Developing Countries:
+
+Developing_Life_expectancy <- Life_expectancy[Life_expectancy$country %in% c("Algeria" , "Lebanon" , "Fiji" , "Moldova" , "Maldives" , "Tunisia" , "St. Vincent and the Grenadines" , "Suriname" , "Mongolia" , "Botswana"),]
+Developing_Life_expectancy
+
+# Dataframe for Underdeveloped Countries:
+
+Underdeveloped_Life_expectancy <- Life_expectancy[Life_expectancy$country %in% c("Eritrea" , "Mozambique" , "Burkina Faso" , "Sierra Leone" , "Mali" , "Burundi" , "South Sudan" , "Chad" , "Central African Republic" , "Niger"),]
+Underdeveloped_Life_expectancy
+```
+
+
+### <span style="color:grey"> Taking mean per column of subsets </span>
+
+Now that we have created three subsets for sets of countries (Developed, Developing and Under Developed) we require for our analysis, we will take mean for values of each year for all the ten countries in the dataset.
+
+```{r}
+# Taking mean of values for each set of countries and save it as a list:
+
+Developed_Life_expectancy_Mean <-  apply(Developed_Life_expectancy[,2:302],2, mean)
+Developing_Life_expectancy_Mean <-  apply(Developing_Life_expectancy[,2:302],2, mean)
+Underdeveloped_Life_expectancy_Mean <-  apply(Underdeveloped_Life_expectancy[,2:302],2, mean)
+```
+
+
+### <span style="color:grey"> Plotting Graphs and making observations </span>
+
+To compare the trend of data values for Life Expectancy in developed, developing and under developed countries from the year 1800 to 2100 we will plot them on one graph and make certain hypothesis based on the observations we derive from that graph.
+
+```{r}
+# plotting mean data vectors for each type of country:
+plot(c(1800:2100),Developed_Life_expectancy_Mean,col="red",pch=15,ylim = c(10,100),
+     xlab=" Years ",ylab="Life Expectancy in years")
+points(c(1800:2100),Developing_Life_expectancy_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Life_expectancy_Mean,col="green")
+
+# adding legends to graph:
+legend(x = "topleft", 
+       legend = c("Life expectancy in Developed countries ","Life expectancy in Developing countries","Life expectancy in Under Developed countries"),
+       fill = c("red","blue","green"))
+
+# Boxplots:
+boxplot(Developed_Life_expectancy_Mean,Developing_Life_expectancy_Mean,Underdeveloped_Life_expectancy_Mean,
+        ylab = "Life Expectancy in years",
+        names=c("Developed ","Developing ","Under Developed "))
+```
+In the first graph we observe that there is certain deviation in the trend that each of the set of countries follow. In early 1800s Life expectancy is less than or equal to 40 years in case of all the three sets of countries, but we observe that it increases significantly in later years. We can add vertical lines to our graph to check roughly where this rise occurs in different sets of countries.
+
+```{r}
+# plotting data lits:
+plot(c(1800:2100),Developed_Life_expectancy_Mean,col="red",pch=15,ylim = c(10,100),
+     xlab=" Years ",ylab="Life Expectancy in years")
+points(c(1800:2100),Developing_Life_expectancy_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Life_expectancy_Mean,col="green")
+
+# Adding vertical lines which mark the beginning of deviation from general trend in early 1800s :
+
+abline(v=1945,col="green")
+abline(v=1925,col="blue")
+abline(v=1870,col="red")
+```
+These are the following observations:
+
+  * Values for Under Developed countries remain roughly same from 1800 to 1940 but we see that it starts to rise in 1945s.
+  * Values for Developing countries remain roughly same from 1800 to 1910s but we see that it starts to drop in 1925.
+  * Values for Developed countries remain roughly same from 1800 to 1860s but we see that it starts to drop in 1870.
+  
+Another interesting observation that can be drawn from the **boxplot** is that the median of Life expectancy in Developed countries is higher than that of Developing countries and median of Life expectancy in Developing countries is higher than that of Under Developed countries. To check this we can perform various Hypothesis tests:
+
+  1. We check whether the values of each type of countries have a normal distribution of not using **Shapiro-Wilk Normality Test**. This is necessary since it will determine which kind of test (parametric or non parametric) can be used to compare our data.
+  2. Since we want to compare three populations, we can use **ANOVA** only if in earlier part we get that our data is normally distributed. If not then we will use pairwise **Wilcoxon test** to compare their median. 
+
+### <span style="color:grey"> Checking Hypothesis </span>
+
+# <span style="color:green"> Part 2  </span>
+
+Now that we have studied the general trends for Developed, Developing and Under Developed countries for each of the above gapminder dataset, we move on to comparing which trend does India follow in case of each of the discussed datasets. 
+
+## Dataset : "Children_per_woman"
+
+### <span style="color:grey"> Getting vector of India Values </span>
+
+```{r}
+India_Children_per_woman <- na.omit(as.numeric(unlist(Children_per_woman[Children_per_woman$country=="India",])))
+India_Children_per_woman
+```
+
+### <span style="color:grey">Plotting data vector of India along with different types of countries </span>
+
+We make a normal plot and boxplot for values of Children per woman in India from year 1800 to 2100 along with the values of Children per women in Developed, Developing and Under developed countries. Observing the plot we make certain observations. 
+
+```{r}
+# plotting mean data vectors for each type of country:
+plot(c(1800:2100),Developed_Children_per_woman_Mean,col="red",pch=15,ylim = c(0,10),
+     xlab="Years",ylab="Children per Woman")
+points(c(1800:2100),Developing_Children_per_woman_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Children_per_woman_Mean,col="green")
+points(c(1800:2100),India_Children_per_woman,col="black")
+
+# adding legends to graph:
+legend(x = "topleft", 
+       legend = c("Children per woman in Developed countries ","Children per woman in Developing countries","Children per woman in Under Developed countries","Children per woman in India"),
+       fill = c("red","blue","green","black"))
+
+# Boxplots:
+boxplot(Developed_Children_per_woman_Mean,Developing_Children_per_woman_Mean,Underdeveloped_Children_per_woman_Mean,India_Children_per_woman,
+        ylab = "Childern per woman in years",
+        names=c("Developed ","Developing ","Under Developed ","India"))
+```
+
+### <span style="color:grey"> Observations and Hypothesis </span>
+
+So from the first graph we can observe that the values of Children per woman in India closely follow the trend for Developing countries. In second graph (i.e Boxplot) we can observe that the mean of India is almost same as that for a Developing country. So we make our hypothesis that : India closly follows the trend of developing country and thus have a mean equal to that of a developing country. We check this hypothesis by following steps :
+
+  1. We check whether values of Children per woman in India are normally distributed or not using **Shapiro-Wilk Normality Test**. This is necessary since it will determine which kind of test (parametric or non parametric) can be used in comparing mean of India and that of a developing country.
+  2. Depending on the result above we use a parametric or non-parametric test to determine whether thw mean of Children per woman in Developing countries is same as that for India.
+
+### <span style="color:grey"> Checking Hypothesis </span>
+
+First we will perform **Shapiro-Wilk Normality Test** to check whether the values of Children per woman in India has normal distribution. 
+
+  * Null Hypothesis, $H_0 :=$ The population is normally distributed
+  * Alternate Hypothesis, $H_a :=$ The population is **NOT** normally distributed
+
+```{r}
+shapiro.test(India_Children_per_woman)
+```
+
+The p-value we get for Shapiro test is less than 0.05. Hence, we reject our Null Hypothesis that the values of Children per woman in India are normally distributed and conclude that they are not normally distributed. Thus we cannot use **t test** or **ANOVA** to compare means of values of Children per Woman in India to that of Dveloping countries . 
+
+Now we will need a non parametric test to compare the means of our datasets . We will use **Wilcoxon test** to compare the mean. Note that we take our data vectors to be paired because the values have been taken under similar conditions from the years 1800 to 2100.
+
+1. Wilcoxon test between India and Developing Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between mean value of Children per women in India and of Developing countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between mean value of Children per women in India and of Developing countries is not zero.
+
+```{r}
+wilcox.test(India_Children_per_woman,Developing_Children_per_woman_Mean,paired = T)
+```
+So we see that p value is much less than 0.05 so we reject the null hypothesis and must conclude that The difference between mean value of Children per women in Developed countries and of Developing countries is not zero. Now to get a better estimate in which range the value exactly lies we take one tail wilcoxon test for India in comparison with Developing country and Developed country. 
+
+```{r}
+wilcox.test(India_Children_per_woman,Developed_Children_per_woman_Mean,paired = T,alternative = "less")
+wilcox.test(India_Children_per_woman,Developing_Children_per_woman_Mean,paired = T,alternative = "greater")
+```
+
+So clearly from the p-values we can conclude that the mean of Children per woman in India is greater than that of Developing countries but less than that of Developed countries.
+
+## Dataset : "Child_mortality"
+### <span style="color:grey"> Getting vector of India Values </span>
+
+```{r}
+India_Child_mortality <- na.omit(as.numeric(unlist(Child_mortality[Child_mortality$country=="India",])))
+India_Child_mortality
+```
+
+### <span style="color:grey">Plotting data vector of India along with different types of countries </span>
+
+We make a normal plot and boxplot for values of Number of children dying per 1000 born in India from year 1800 to 2100 along with the values of Number of children dying per 1000 born in Developed, Developing and Under developed countries. Observing the plot we make certain observations. 
+
+```{r}
+# plotting mean data vectors for each type of country:
+plot(c(1800:2100),Developed_Child_mortality_Mean,col="red",pch=15,ylim = c(0,700),
+     xlab="Years",ylab="Number of children dying per 1000 born")
+points(c(1800:2100),Developing_Child_mortality_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Child_mortality_Mean,col="green")
+points(c(1800:2100),India_Child_mortality,col="black")
+
+# adding legends to graph:
+legend(x = "topright", 
+       legend = c("Child mortality in Developed countries ","Child mortality in Developing countries","Child mortality in Underdeveloped countries","Child mortality in India"),
+       fill = c("red","blue","green","black"))
+
+# Boxplots:
+boxplot(Developed_Child_mortality_Mean,Developing_Child_mortality_Mean,Underdeveloped_Child_mortality_Mean,India_Child_mortality,
+        ylab = "Number of children dying per 1000 born",
+        names=c("Developed ","Developing ","Underdeveloped ","India"))
+```
+
+### <span style="color:grey"> Observations and Hypothesis </span>
+
+So from the first graph we can observe that the values of Number of children dying per 1000 born in India does not follow any particular resemblance in trends of either Developing countries or Underdeveloped. So, in second graph (i.e Boxplot) we can observe that the mean of India is almost same as that for a Developing country. So we make our hypothesis that : India closly follows the trend of developing country and thus have a median equal to that of a developing country. We check this hypothesis by following steps :
+
+  1. We check whether values of Children per woman in India are normally distributed or not using **Shapiro-Wilk Normality Test**. This is necessary since it will determine which kind of test (parametric or non parametric) can be used in comparing mean of India and that of a developing country.
+  2. Depending on the result above we use a parametric or non-parametric test to determine whether thw mean of Children per woman in Developing countries is same as that for India.
+
+### <span style="color:grey"> Checking Hypothesis </span>
+
+First we will perform **Shapiro-Wilk Normality Test** to check whether the values of Number of children dying per 1000 born in India has normal distribution. 
+
+  * Null Hypothesis, $H_0 :=$ The population is normally distributed
+  * Alternate Hypothesis, $H_a :=$ The population is **NOT** normally distributed
+
+```{r}
+shapiro.test(India_Child_mortality)
+```
+
+The p-value we get for Shapiro test is less than 0.05. Hence, we reject our Null Hypothesis that the values of Number of children dying per 1000 born in India are normally distributed and conclude that they are not normally distributed. Thus we cannot use **t test** or **ANOVA** to compare means of values of Number of children dying per 1000 born in India to that of Dveloping countries . 
+
+Now we will need a non parametric test to compare the means of our datasets . We will use **Wilcoxon test** to compare the mean. Note that we take our data vectors to be paired because the values have been taken under similar conditions from the years 1800 to 2100.
+
+1. Wilcoxon test between India and Developing Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between mean value of Number of children dying per 1000 born in India and of Developing countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between mean value of Number of children dying per 1000 born in India and of Developing countries is not zero.
+
+```{r}
+wilcox.test(India_Child_mortality,Developing_Child_mortality_Mean,paired = T)
+```
+So we see that p value is much less than 0.05 so we reject the null hypothesis and must conclude that The difference between mean value of umber of children dying per 1000 born in India and of Developing countries is not zero. Now to get a better estimate in which range the value exactly lies we take one tail wilcoxon test for India in comparison with Developing country and Under Developed country. 
+
+```{r}
+wilcox.test(India_Child_mortality,Underdeveloped_Child_mortality_Mean,paired = T,alternative = "less")
+wilcox.test(India_Child_mortality,Developing_Child_mortality_Mean,paired = T,alternative = "greater")
+```
+
+So clearly from the p-values we can conclude that the median of umber of children dying per 1000 born in India is higher than that of Developing countries but less than that of Under Developed countries.
+
+## Dataset : "Income_per_person"
+
+### <span style="color:grey"> Getting vector of India Values </span>
+
+```{r}
+India_Income_per_person <- na.omit(as.numeric(unlist(Income_per_person[Income_per_person$country=="India",])))
+India_Income_per_person
+```
+
+### <span style="color:grey">Plotting data vector of India along with different types of countries </span>
+
+We make a normal plot and boxplot for values of GDP per capita in India from year 1800 to 2100 along with the values of GDP per capita in Developed, Developing and Under developed countries. Observing the plot we make certain observations. 
+
+```{r}
+# plotting mean data vectors for each type of country:
+plot(c(1800:2040),Developed_Income_per_person_Mean,col="red",pch=15,
+     xlab="Years",ylab="GDP per capita")
+points(c(1800:2040),Developing_Income_per_person_Mean,col="blue")
+points(c(1800:2040),Underdeveloped_Income_per_person_Mean,col="green")
+points(c(1800:2040),India_Income_per_person,col="black")
+
+# adding legends to graph:
+legend(x = "topleft", 
+       legend = c("GDP per capita in Developed countries ","GDP per capita in Developing countries","GDP per capita in Underdeveloped countries","GDP per capita in India"),
+       fill = c("red","blue","green","black"))
+
+# Boxplots:
+boxplot(Developed_Income_per_person_Mean,Developing_Income_per_person_Mean,Underdeveloped_Income_per_person_Mean,India_Income_per_person,
+        ylab = "GDP per capita",
+        names=c("Developed ","Developing ","Underdeveloped ","India"),outline = F)
+```
+
+### <span style="color:grey"> Observations and Hypothesis </span>
+
+So from the first graph we can observe that the values of GDP per capita in India follows trend of Developing countries. In second graph (i.e Boxplot) we cannot clearly observe median of India is similar to that for a Developing country or Under developed country. So first we make our hypothesis that : India closly follows the trend of developing country and thus have a median equal to that of a developing country. We check this hypothesis by following steps :
+
+  1. We check whether values of  GDP per capita in India are normally distributed or not using **Shapiro-Wilk Normality Test**. This is necessary since it will determine which kind of test (parametric or non parametric) can be used in comparing mean of India and that of a developing country.
+  2. Depending on the result above we use a parametric or non-parametric test to determine whether the mean of  GDP per capita in Developing countries is same as that for India.
+
+### <span style="color:grey"> Checking Hypothesis </span>
+
+First we will perform **Shapiro-Wilk Normality Test** to check whether the values of GDP per capita in India has normal distribution. 
+
+  * Null Hypothesis, $H_0 :=$ The population is normally distributed
+  * Alternate Hypothesis, $H_a :=$ The population is **NOT** normally distributed
+
+```{r}
+shapiro.test(India_Income_per_person)
+```
+
+The p-value we get for Shapiro test is less than 0.05. Hence, we reject our Null Hypothesis that the values of  GDP per capita in India are normally distributed and conclude that they are not normally distributed. Thus we cannot use **t test** or **ANOVA** to compare means of values of  GDP per capita in India to that of Dveloping countries . 
+
+Now we will need a non parametric test to compare the means of our datasets . We will use **Wilcoxon test** to compare the mean. Note that we take our data vectors to be paired because the values have been taken under similar conditions from the years 1800 to 2040.
+
+1. Wilcoxon test between India and Developing Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between mean value of  GDP per capita in India and of Developing countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between mean value of  GDP per capita in India and of Developing countries is not zero.
+
+```{r}
+wilcox.test(India_Income_per_person,Developing_Income_per_person_Mean,paired = T)
+```
+So we see that p value is much less than 0.05 so we reject the null hypothesis and must conclude that The difference between mean value of  GDP per capita in India and of Developing countries is not zero. Now to get a better estimate in which range the value exactly lies we take one tail wilcoxon test for India in comparison with Developing country and Under Developed country. 
+
+```{r}
+wilcox.test(India_Income_per_person,Underdeveloped_Income_per_person_Mean,paired = T,alternative = "less")
+wilcox.test(India_Income_per_person,Developing_Income_per_person_Mean,paired = T,alternative = "greater")
+```
+
+So clearly from the p-values we can conclude that the median of GDP per capita in India is less than that of Developing countries but greater than that of Under Developed countries.
+
+
+## Dataset : "Life_expectancy"
+
+### <span style="color:grey"> Getting vector of India Values </span>
+
+```{r}
+India_Life_expectancy <- na.omit(as.numeric(unlist(Life_expectancy[Life_expectancy$country=="India",])))
+India_Life_expectancy
+```
+
+### <span style="color:grey">Plotting data vector of India along with different types of countries </span>
+
+We make a normal plot and boxplot for values of Life expectancy in India from year 1800 to 2100 along with the values of Life expectancy in Developed, Developing and Under developed countries. Observing the plot we make certain observations. 
+
+```{r}
+# plotting mean data vectors for each type of country:
+plot(c(1800:2100),Developed_Life_expectancy_Mean,col="red",pch=15,ylim = c(10,100),
+     xlab="Years",ylab="Life expectancy in Years")
+points(c(1800:2100),Developing_Life_expectancy_Mean,col="blue")
+points(c(1800:2100),Underdeveloped_Life_expectancy_Mean,col="green")
+points(c(1800:2100),India_Life_expectancy,col="black")
+
+# adding legends to graph:
+legend(x = "topleft", 
+       legend = c("Life expectancy in Developed  ","Life expectancy in Developing ","Life expectancy in Underdeveloped ","Life expectancy in India"),
+       fill = c("red","blue","green","black"))
+
+# Boxplots:
+boxplot(Developed_Life_expectancy_Mean,Developing_Life_expectancy_Mean,Underdeveloped_Life_expectancy_Mean,India_Life_expectancy,
+        ylab = "Life expectancy",
+        names=c("Developed ","Developing ","Underdeveloped ","India"),outline = F)
+```
+
+### <span style="color:grey"> Observations and Hypothesis </span>
+
+So from the first graph we can observe that the values of Life Expectancy in India does not follow any particular resemblance in trends of either Developing countries or Underdeveloped. So, in second graph (i.e Boxplot) we can observe that the mean of India is almost same as that for a Underdeveloped country. So we make our hypothesis that : India cloesly follows the trend of Underdeveloped country and thus have a median equal to that of a Underdeveloped country. We check this hypothesis by following steps :
+
+  1. We check whether values of Life Expectancy in India are normally distributed or not using **Shapiro-Wilk Normality Test**. This is necessary since it will determine which kind of test (parametric or non parametric) can be used in comparing mean of India and that of a developing country.
+  2. Depending on the result above we use a parametric or non-parametric test to determine whether the mean of Life Expectancy in Developing countries is same as that for India.
+
+### <span style="color:grey"> Checking Hypothesis </span>
+
+First we will perform **Shapiro-Wilk Normality Test** to check whether the values of Life Expectancy in India has normal distribution. 
+
+  * Null Hypothesis, $H_0 :=$ The population is normally distributed
+  * Alternate Hypothesis, $H_a :=$ The population is **NOT** normally distributed
+
+```{r}
+shapiro.test(India_Life_expectancy)
+```
+
+The p-value we get for Shapiro test is less than 0.05. Hence, we reject our Null Hypothesis that the values of  Life_expectancy in India are normally distributed and conclude that they are not normally distributed. Thus we cannot use **t test** or **ANOVA** to compare means of values of Life expectancy in India to that of Underdeveloped countries . 
+
+Now we will need a non parametric test to compare the means of our datasets . We will use **Wilcoxon test** to compare the mean. Note that we take our data vectors to be paired because the values have been taken under similar conditions from the years 1800 to 2040.
+
+1. Wilcoxon test between India and Underdeveloped Countries:
+
+  * Null Hypothesis, $H_0 :=$ The difference between mean value of  Life Expectancy in India and of Underdeveloped countries is zero.
+  * Alternate Hypothesis, $H_a :=$ The difference between mean value of  Life Expectancy in India and of Underdeveloped countries is not zero.
+
+```{r}
+wilcox.test(India_Life_expectancy,Underdeveloped_Life_expectancy_Mean,paired = T)
+```
+So we see that p value is much less than 0.05 so we reject the null hypothesis and must conclude that The difference between mean value of  Life_expectancy in India and of Underdeveloped countries is not zero. Now to get a better estimate in which range the value exactly lies we take one tail wilcoxon test for India in comparison with Developing country and Under Developed country. 
+
+```{r}
+wilcox.test(India_Life_expectancy,Underdeveloped_Life_expectancy_Mean,paired = T,alternative = "less")
+wilcox.test(India_Life_expectancy,Developing_Life_expectancy_Mean,paired = T,alternative = "greater")
+```
+
+So clearly from the p-values we can conclude that the median of Life expectancy in India is less than that of Developing countries but greater than that of Under Developed countries.
+
+
+
+
+
+
+
+
+
+
+
+
+# <span style="color:green"> Part 3  </span>
+
+## Child Mortality Vs Children per Women  : 
+
+```{r}
+plot(Developed_Child_mortality_Mean, Developed_Children_per_woman_Mean, col = "red", pch = 20,xlab = "Children dying per 1000 born", ylab = "Children per woman", main = "Child Mortality Vs Children per Women",ylim = c(0,8), xlim = c(0,550) )
+points(Developing_Child_mortality_Mean, Developing_Children_per_woman_Mean, col= " blue", pch = 20)
+points(Underdeveloped_Child_mortality_Mean, Underdeveloped_Children_per_woman_Mean, col ="green", pch= 20)
+points(India_Child_mortality, India_Children_per_woman, col = "black", pch = 20)
+
+```
+Observing the graph we can say that with increase in Children per women , Child mortality also increases. This Hypothesis can be tested using correlation test.
+
+```{r}
+Children_per_woman_Mean <-  apply(Children_per_woman[,2:302],2, mean)
+Child_mortality_Mean <-  apply(Child_mortality[,2:302],2, mean)
+
+cor.test(Children_per_woman_Mean, Child_mortality_Mean )
+```
+
+Since the correlation value is positive we say that with ncrease in Children per women , Child mortality also increases.
+
+## Life Expectancy Vs Children per Women  : 
+
+```{r}
+plot(Developed_Life_expectancy_Mean, Developed_Children_per_woman_Mean, col = "red", pch = 20,xlab = "Life expectancy in years", ylab = "Children per woman", main = "Life Expectancy Vs Children per Women",ylim = c(0,8), xlim = c(0,100) )
+points(Developing_Life_expectancy_Mean, Developing_Children_per_woman_Mean, col= " blue", pch = 20)
+points(Underdeveloped_Life_expectancy_Mean, Underdeveloped_Children_per_woman_Mean, col ="green", pch= 20)
+points(India_Life_expectancy, India_Children_per_woman, col = "black", pch = 20)
+```
+Observing the graph we can say that with decrease in Children per women , Life expectancy of individual also increases. This Hypothesis can be tested using correlation test. 
+
+```{r}
+Life_expectancy_Mean <- apply(Life_expectancy[,2:302],2, mean)
+
+cor.test(Children_per_woman_Mean, Life_expectancy_Mean )
+```
+
+As the correlation is negative we can say that with decrease in Children per women there is a increase in values of Life expectancy 
